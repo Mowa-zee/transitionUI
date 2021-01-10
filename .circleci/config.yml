@@ -1,0 +1,23 @@
+version: 2.1
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:12.19.1
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore Npm Package Cache
+          keys:
+            - yarn-cache-netlify-{{ checksum "yarn.lock" }}
+      - run:
+          name: install-packages
+          command: yarn
+      - save_cache:
+          name: Save NPM package cache
+          key: yarn-cache-netlify-{{ checksum "yarn.lock" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: test
+          command: yarn test
