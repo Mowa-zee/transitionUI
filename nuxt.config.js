@@ -9,6 +9,10 @@ export default {
    ** See https://nuxtjs.org/api/configuration-target
    */
   target: 'static',
+
+  // ssr: true,
+
+  // modern: true,
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: 'travelUI',
@@ -29,10 +33,16 @@ export default {
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
-  css: ['vuesax/dist/vuesax.css'],
+  css: [
+    'vuesax/dist/vuesax.css',
+    'locomotive-scroll/dist/locomotive-scroll.css'
+  ],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: ['@/plugins/vuesax'],
+  plugins: [
+    { src: '@/plugins/vuesax.js', mode: 'client' },
+    { src: '@/plugins/client.js', mode: 'client' }
+  ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -84,11 +94,37 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    transpile: [
+      // Vendors
+      'gsap'
+    ],
+    analyze: true,
     extend(config, ctx) {
       if (ctx.isDev) {
         config.devtool = ctx.isClient ? 'source-map' : 'inline-source-map'
       }
+      // if (ctx.isClient) {
+      //   config.module.rules.push({
+      //     enforce: 'pre',
+      //     test: /\.(js|vue)$/,
+      //     loader: 'eslint-loader',
+      //     exclude: /(node_modules)/
+      //   })
+      // }
+      // config.node = {
+      //   fs: 'empty'
+      // }
     },
+    hotMiddleware: {
+      client: {
+        overlay: false
+      }
+    },
+    postcss: [
+      require('autoprefixer')({
+        overrideBrowserslist: ['> 5%']
+      })
+    ],
     extractCSS: true,
     optimization: {
       splitChunks: {
