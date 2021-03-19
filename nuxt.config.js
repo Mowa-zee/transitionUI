@@ -52,7 +52,9 @@ export default {
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
     // https://go.nuxtjs.dev/stylelint
-    '@nuxtjs/stylelint-module'
+    '@nuxtjs/stylelint-module',
+    // https://github.com/Developmint/nuxt-purgecss
+    'nuxt-purgecss'
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -68,6 +70,23 @@ export default {
     // Doc: https://github.com/nuxt-community/sitemap-module
     '@nuxtjs/sitemap'
   ],
+
+  purgeCSS: {
+    extractors: () => [
+      {
+        extractor(content) {
+          return content.match(/[A-z0-9-:\\/]+/g)
+        },
+        extensions: ['html', 'vue', 'js']
+      },
+      {
+        extractor(content) {
+          return content.match(/[A-z0-9-\\/]+/g)
+        },
+        extensions: ['vue'] // This will not work, because the above extractor is applied to 'vue' already.
+      }
+    ]
+  },
 
   // Toast module configuration (https://github.com/nuxt-community/modules/tree/master/packages/toast)
   toast: {
@@ -120,11 +139,21 @@ export default {
         overlay: false
       }
     },
-    postcss: [
-      require('autoprefixer')({
-        overrideBrowserslist: ['> 5%']
-      })
-    ],
+    postcss: {
+      plugins: {
+        // tailwindcss: {},
+        'postcss-import': {},
+        // 'postcss-preset-env': this.preset,
+        autoprefixer: {
+          overrideBrowserslist: ['> 5%']
+        },
+        cssnano: { preset: 'default' } // disabled in dev mode
+      },
+      order: ['postcss-import', 'postcss-preset-env', 'cssnano']
+      // preset: {
+      //   stage: 2
+      // }
+    },
     extractCSS: true,
     optimization: {
       splitChunks: {
